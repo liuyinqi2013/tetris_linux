@@ -18,6 +18,9 @@
 #include <boost/make_shared.hpp>
 #include <sys/time.h>
 
+#include <sys/select.h>
+#include <sys/types.h>
+
 using namespace std;
 
 #define MAX_SIZE 4
@@ -552,12 +555,22 @@ void TetrisGame::Run()
 
 	unsigned long long lastOptTime = UTime();
 
+        /*
 	int flags;
 	if ((flags = fcntl(0, F_GETFL)) == -1) return ;
  		
 	flags |= O_NONBLOCK;		
 	if (fcntl(0, F_SETFL, flags) == -1) return ; 
+	*/
+
+	fd_set rdset, tmpset;
 	
+	FD_ZERO(&rdset);
+	FD_SET(0, &rdset);
+
+
+	struct timeval timeout = {0, 500};
+
 	Draw();
 
 	while(1)
@@ -566,21 +579,26 @@ void TetrisGame::Run()
 		{
 			ShowGameOverInfo();
 
+			/*
 			flags &= ~O_NONBLOCK;
         		if (fcntl(0, F_SETFL, flags) == -1) return ;
+			*/
 
 			read(0, buf, 1);
 			if (buf[0] == 'q')
 				break;
 			else if (buf[0] == 'c')
 				Init();
-
+			
+	
+			/*
 			flags |= O_NONBLOCK;
         		if (fcntl(0, F_SETFL, flags) == -1) return ;
+			*/
 				
 		}
 		
-		if (UTime() - lastOptTime > 1000 * 500 )
+		if (UTime() - lastOptTime > 1000 * 500 * 2)
 		{
 			if (m_currBlock->DownHit())
 			{
@@ -598,30 +616,42 @@ void TetrisGame::Run()
 			Draw();
 		}
 		else
-		{
-			int len = read(0, buf, 1);
+		{	
+			tmpset = rdset;
 
-			if (len == 1)
-			{ 
+			timeout.tv_sec = 0;
+           		timeout.tv_usec = 400;
 
-				switch(buf[0])
-				{
-					case 'w':
-						m_currBlock->Rotate();
-						break;
-					case 's':
-						m_currBlock->Down();
-						break;
-					case 'a':
-						m_currBlock->Left();
-						break;
-					case 'd':
-						m_currBlock->Right();
-						break;
-					default:
-						printf("\a");
+			int n = select(1, &tmpset, NULL, NULL, &timeout);
+
+			if (n > 0)
+			{
+
+				int len = read(0, buf, 1);
+
+				if (len == 1)
+				{ 
+
+					switch(buf[0])
+					{
+						case 'w':
+							m_currBlock->Rotate();
+							break;
+						case 's':
+							m_currBlock->Down();
+							break;
+						case 'a':
+							m_currBlock->Left();
+							break;
+						case 'd':
+							m_currBlock->Right();
+							break;
+						default:
+							printf("\a");
+					}
+
+					Draw();
 				}
-				Draw();
 			}
 		}
 
@@ -648,6 +678,7 @@ void TetrisGame::ShowGameOverInfo()
 void TetrisGame::Draw()
 {
 	Clear();
+
 	m_gameFrame->Draw();
 	m_infoFrame->Draw();
 	m_currBlock->Draw();
