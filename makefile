@@ -6,11 +6,12 @@ CFLAGS= -c -Wall -g
 TARGET=tetris
 BIN_PATH=../bin
 INSTALL=
+BOOST_HOME=/home/bulande/boost
 
-SUBDIRS=$(shell find . -type d)
-INC_SUBDIRS=$(shell find . -type d | awk -F' ' '{print "-I"$$0}')
-INC_PATH=$(INC_SUBDIRS) -I/usr/local/boost/include/ -I/usr/local/log4cpp/include/
-LIB_PATH=/usr/lib64/mysql/libmysqlclient.a /usr/local/boost/lib/libboost_thread.a /usr/local/boost/lib/libboost_system.a /usr/local/log4cpp/lib/liblog4cpp.a
+SUBDIRS=$(shell find ./* -type d)
+INC_SUBDIRS=$(shell find ./* -type d | awk -F' ' '{print "-I"$$0}')
+INC_PATH=$(INC_SUBDIRS) -I$(BOOST_HOME)/include/
+LIB_PATH=$(BOOST_HOME)/lib/libboost_thread.a $(BOOST_HOME)/lib/libboost_system.a
 LIB= -lpthread -ldl -lz
 
 C_SRC=$(shell find . -type f | grep "\.c$$" | grep -v grep)

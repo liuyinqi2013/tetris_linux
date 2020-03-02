@@ -27,7 +27,7 @@ using namespace std;
 
 unsigned long long UTime()
 {
-	struct timeval val = {0};
+	struct timeval val = { 0 };
 	gettimeofday(&val, NULL);
 	return (val.tv_sec * 1000000 + val.tv_usec);
 }
@@ -35,13 +35,13 @@ unsigned long long UTime()
 void DrawRectangle(int x, int y, int w, int h)
 {
 	printf("\e[%d;%dH+", y, x);
-	for(int i = 1; i < w; i++)
+	for (int i = 1; i < w; i++)
 	{
 		printf("\e[%d;%dH-", y, x + i);
 		printf("\e[%d;%dH-", y + h, x + i);
 	}
 
-	for(int i = 1; i < h; i++)
+	for (int i = 1; i < h; i++)
 	{
 		printf("\e[%d;%dH|", y + i, x);
 		printf("\e[%d;%dH|", y + i, x + w);
@@ -51,9 +51,7 @@ void DrawRectangle(int x, int y, int w, int h)
 	printf("\e[%d;%dH+", y, x);
 	printf("\e[%d;%dH+", y, x + w);
 	printf("\e[%d;%dH+", y + h, x);
-	printf("\e[%d;%dH+", y + h, x + w);	
-
-
+	printf("\e[%d;%dH+", y + h, x + w);
 }
 
 inline void Clear()
@@ -61,64 +59,68 @@ inline void Clear()
 	printf("\e[0;0H\e[2J");
 }
 
-void Move(int x, int y)
+inline void Move(int x, int y)
 {
 	printf("\e[%d;%dH", y, x);
 }
 
+inline void Sound_Bi()
+{
+	printf("\a");
+}
 
 class Frame
 {
-	public:
+public:
 
-		Frame(int type = 0) :
-			m_x(10),
-			m_y(10),
-			m_width(20),
-			m_height(20),
-			m_type(type)
+	Frame(int type = 0) :
+		m_x(10),
+		m_y(10),
+		m_width(20),
+		m_height(20),
+		m_type(type)
 	{
 	}
 
-		Frame(int x, int y, int w, int h, int type = 0) :
-			m_x(x),
-			m_y(y),
-			m_width(w),
-			m_height(h),
-			m_type(type)
+	Frame(int x, int y, int w, int h, int type = 0) :
+		m_x(x),
+		m_y(y),
+		m_width(w),
+		m_height(h),
+		m_type(type)
 	{
 	}
 
-		~Frame() {}
+	~Frame() {}
 
-		virtual void Draw()
-		{
-			DrawRectangle(m_x - 2, m_y - 1, m_width * 2 + 2, m_height + 1);	
-		}
+	virtual void Draw()
+	{
+		DrawRectangle(m_x - 2, m_y - 1, m_width * 2 + 2, m_height + 1);
+	}
 
-		void Move(int dx, int dy)
-		{
-			m_x += dx;
-			m_y += dy;
-		}
+	void Move(int dx, int dy)
+	{
+		m_x += dx;
+		m_y += dy;
+	}
 
 
-		void Up() { --m_y; }
+	void Up() { --m_y; }
 
-		void Down() { ++m_y; }
+	void Down() { ++m_y; }
 
-		void Left() { --m_x; }
+	void Left() { --m_x; }
 
-		void Right(){ ++m_x; }
+	void Right() { ++m_x; }
 
-	public:
+public:
 
-		int m_x;
-		int m_y;
+	int m_x;
+	int m_y;
 
-		int m_width;
-		int m_height;
-		int m_type;
+	int m_width;
+	int m_height;
+	int m_type;
 };
 
 
@@ -126,9 +128,9 @@ class GameFrame : public Frame
 {
 public:
 	GameFrame(int x, int y, int w, int h) :
-	 Frame(x, y, w, h, 1),
-	 m_col(w),
-	 m_row(h)
+		Frame(x, y, w, h, 1),
+		m_col(w),
+		m_row(h)
 	{
 
 		m_data = new char[m_row * m_col];
@@ -136,21 +138,21 @@ public:
 
 		/*
 		for (int i = 0; i < m_row; ++i)
-       		{
-                	for (int j = 0; j < m_col; ++j)
-                	{
-                        	m_data[i * m_row + j] = 0;
+			{
+					for (int j = 0; j < m_col; ++j)
+					{
+							m_data[i * m_row + j] = 0;
 
-               		}
-       		}
+					}
+			}
 		*/
 	}
-	
+
 	~GameFrame()
 	{
 		delete[] m_data;
 	}
-	
+
 	virtual void Draw();
 
 public:
@@ -166,9 +168,9 @@ void GameFrame::Draw()
 	{
 		for (int j = 0; j < m_col; ++j)
 		{
-                        if (m_data[i * m_col + j] == 1)
-                                printf("\e[%d;%dH■", (m_y + i), (m_x +  j * 2));
-			
+			if (m_data[i * m_col + j] == 1)
+				printf("\e[%d;%dH■", (m_y + i), (m_x + j * 2));
+
 		}
 	}
 }
@@ -176,155 +178,155 @@ void GameFrame::Draw()
 
 class Block
 {
-	public:
-		Block(int x, int y, int type, Frame * pFrame = NULL) :
-			m_x(x),
-			m_y(y),
-			m_status(0),
-			m_type(type),
-			m_gameFrame(pFrame)
+public:
+	Block(int x, int y, int type, Frame* pFrame = NULL) :
+		m_x(x),
+		m_y(y),
+		m_status(0),
+		m_type(type),
+		m_gameFrame(pFrame)
+	{
+		/*
+		for (int i = 0; i < MAX_SIZE; ++i)
 		{
-			/*
-			for (int i = 0; i < MAX_SIZE; ++i)
-			{
-				memset(m_data + i, 0, MAX_SIZE) ;
-			}
-			*/
-			
-			//memset((char*)m_data, 0, 4 * 4 * 4) ;
-			/*
-			m_data[0][1][1] = 1;
-			m_data[0][2][0] = 1;
-			m_data[0][2][1] = 1;
-			m_data[0][2][2] = 1;
-			*/
-
-			Init();
+			memset(m_data + i, 0, MAX_SIZE) ;
 		}
-		
-		Block(const Block & rhs) :
-		        m_x(rhs.m_x),
-                        m_y(rhs.m_y),
-                        m_status(rhs.m_status),
-                        m_type(rhs.m_type),
-                        m_gameFrame(rhs.m_gameFrame)
+		*/
 
-		{
-			Init();
-		}
+		//memset((char*)m_data, 0, 4 * 4 * 4) ;
+		/*
+		m_data[0][1][1] = 1;
+		m_data[0][2][0] = 1;
+		m_data[0][2][1] = 1;
+		m_data[0][2][2] = 1;
+		*/
 
-		~Block()
-		{
-		}
+		Init();
+	}
 
-		virtual void Draw();
+	Block(const Block& rhs) :
+		m_x(rhs.m_x),
+		m_y(rhs.m_y),
+		m_status(rhs.m_status),
+		m_type(rhs.m_type),
+		m_gameFrame(rhs.m_gameFrame)
 
-		void Move(int dx, int dy)
-		{
-			m_x += dx;
-			m_y += dy;
-		}
+	{
+		Init();
+	}
 
-		void SetFrame(Frame * pFrame)
-		{
-			m_gameFrame = pFrame;
-		}
+	~Block()
+	{
+	}
 
-		void Up() { --m_y; }
+	virtual void Draw();
 
-		void Down() {  ++m_y; }
+	void Move(int dx, int dy)
+	{
+		m_x += dx;
+		m_y += dy;
+	}
 
-		void Left() {  --m_x; }
+	void SetFrame(Frame* pFrame)
+	{
+		m_gameFrame = pFrame;
+	}
 
-		void Right(){  ++m_x; }
+	void Up() { --m_y; }
 
-		void SetX(int x) { m_x = x; }
+	void Down() { ++m_y; }
 
-		void SetY(int y) { m_y = y; }
+	void Left() { --m_x; }
 
-		void Rotate();
+	void Right() { ++m_x; }
 
-		void RRotate();
+	void SetX(int x) { m_x = x; }
 
-		void Init();
+	void SetY(int y) { m_y = y; }
 
-		void Random() { m_status = rand() % 4;}
+	void Rotate();
 
-		bool LeftHit();
-		
-		bool RightHit();
+	void RRotate();
 
-		bool DownHit();
+	void Init();
 
-		Block& operator= (const Block & rhs);
+	void Random() { m_status = rand() % 4; }
 
-		void Paste();
+	bool LeftHit();
 
-	protected:
-		int m_x;
-		int m_y;
-		int m_d;
-		int m_status;
-		int m_type;
-		char m_data[4][4][4];
+	bool RightHit();
 
-		Frame * m_gameFrame;
+	bool DownHit();
+
+	Block& operator= (const Block& rhs);
+
+	void Paste();
+
+protected:
+	int m_x;
+	int m_y;
+	int m_d;
+	int m_status;
+	int m_type;
+	char m_data[4][4][4];
+
+	Frame* m_gameFrame;
 };
 
 void Block::Init()
 {
 	memset((char*)m_data, 0, 4 * 4 * 4);
 
-	switch(m_type)
+	switch (m_type)
 	{
 	case 0:
 		m_d = 3;
 		m_data[0][1][1] = 1;
-                m_data[0][2][0] = 1;
-                m_data[0][2][1] = 1;
-                m_data[0][2][2] = 1;
+		m_data[0][2][0] = 1;
+		m_data[0][2][1] = 1;
+		m_data[0][2][2] = 1;
 		break;
 	case 1:
 		m_d = 2;
 		m_data[0][0][0] = 1;
-                m_data[0][0][1] = 1;
-                m_data[0][1][0] = 1;
-                m_data[0][1][1] = 1;
+		m_data[0][0][1] = 1;
+		m_data[0][1][0] = 1;
+		m_data[0][1][1] = 1;
 		break;
 	case 2:
 		m_d = 4;
 		m_data[0][0][0] = 1;
-                m_data[0][1][0] = 1;
-                m_data[0][2][0] = 1;
-                m_data[0][3][0] = 1;
+		m_data[0][1][0] = 1;
+		m_data[0][2][0] = 1;
+		m_data[0][3][0] = 1;
 		break;
 	case 3:
 		m_d = 3;
 		m_data[0][0][0] = 1;
-                m_data[0][0][1] = 1;
-                m_data[0][0][2] = 1;
-                m_data[0][1][0] = 1;
+		m_data[0][0][1] = 1;
+		m_data[0][0][2] = 1;
+		m_data[0][1][0] = 1;
 		break;
 	case 4:
 		m_d = 4;
 		m_data[0][1][0] = 1;
-                m_data[0][1][1] = 1;
-                m_data[0][2][2] = 1;
-                m_data[0][2][3] = 1;
+		m_data[0][1][1] = 1;
+		m_data[0][2][2] = 1;
+		m_data[0][2][3] = 1;
 		break;
 	default:
-                m_d = 2;
-                m_data[0][0][0] = 1;
-                m_data[0][0][1] = 1;
-                m_data[0][1][0] = 1;
-                m_data[0][1][1] = 1;
+		m_d = 2;
+		m_data[0][0][0] = 1;
+		m_data[0][0][1] = 1;
+		m_data[0][1][0] = 1;
+		m_data[0][1][1] = 1;
 	}
 
 	for (int n = 1; n < 4; ++n)
 	{
 		for (int i = 0; i < m_d; ++i)
 		{
-			for (int j = 0; j < m_d;  ++j)
+			for (int j = 0; j < m_d; ++j)
 			{
 				m_data[n][i][j] = m_data[n - 1][j][m_d - 1 - i];
 			}
@@ -337,7 +339,7 @@ void Block::Draw()
 {
 	if (!m_gameFrame) return;
 
-	char (*data)[4] = m_data[m_status];
+	char(*data)[4] = m_data[m_status];
 
 	for (int i = 0; i < m_d; ++i)
 	{
@@ -356,13 +358,13 @@ void Block::Rotate()
 
 void Block::RRotate()
 {
-	m_status = (m_status - 1) % 4;	
+	m_status = (m_status - 1) % 4;
 	if (m_status < 0) m_status = 3;
 }
 
 bool Block::LeftHit()
 {
-	char (*data)[4] = m_data[m_status];
+	char(*data)[4] = m_data[m_status];
 
 	for (int i = 0; i < m_d; ++i)
 	{
@@ -370,18 +372,18 @@ bool Block::LeftHit()
 		{
 			if (data[i][j] == 1)
 			{
-				if (m_x + j <= 0) 
+				if (m_x + j <= 0)
 				{
 					return true;
 				}
-				else if (m_gameFrame && 
+				else if (m_gameFrame &&
 					m_y + i >= 0 &&
 					m_y + i < m_gameFrame->m_height &&
 					m_gameFrame->m_type == 1)
 				{
-					GameFrame * pGameFrame = (GameFrame*)m_gameFrame;
+					GameFrame* pGameFrame = (GameFrame*)m_gameFrame;
 					int index = (m_y + i) * pGameFrame->m_col + (m_x + j);
-					if (pGameFrame->m_data[index] == 1 || pGameFrame->m_data[index - 1] == 1)	
+					if (pGameFrame->m_data[index] == 1 || pGameFrame->m_data[index - 1] == 1)
 						return true;
 				}
 
@@ -391,12 +393,12 @@ bool Block::LeftHit()
 	}
 
 	return false;
-		
+
 }
-		
+
 bool Block::RightHit()
 {
-	char (*data)[4] = m_data[m_status];
+	char(*data)[4] = m_data[m_status];
 
 	for (int i = 0; i < m_d; ++i)
 	{
@@ -404,18 +406,18 @@ bool Block::RightHit()
 		{
 			if (data[i][j] == 1)
 			{
-				if (m_x + j >= m_gameFrame->m_width - 1) 
+				if (m_x + j >= m_gameFrame->m_width - 1)
 				{
 					return true;
 				}
-				else if (m_gameFrame && 
-					m_y + i >= 0 && 
-					m_y + i < m_gameFrame->m_height && 
+				else if (m_gameFrame &&
+					m_y + i >= 0 &&
+					m_y + i < m_gameFrame->m_height &&
 					m_gameFrame->m_type == 1)
 				{
-					GameFrame * pGameFrame = (GameFrame*)m_gameFrame;
+					GameFrame* pGameFrame = (GameFrame*)m_gameFrame;
 					int index = (m_y + i) * pGameFrame->m_col + (m_x + j);
-					if (pGameFrame->m_data[index] == 1 || pGameFrame->m_data[index + 1] == 1)	
+					if (pGameFrame->m_data[index] == 1 || pGameFrame->m_data[index + 1] == 1)
 						return true;
 				}
 
@@ -429,7 +431,7 @@ bool Block::RightHit()
 
 bool Block::DownHit()
 {
-	char (*data)[4] = m_data[m_status];
+	char(*data)[4] = m_data[m_status];
 
 	for (int i = 0; i < m_d; ++i)
 	{
@@ -437,19 +439,19 @@ bool Block::DownHit()
 		{
 			if (data[j][i] == 1)
 			{
-				if (m_y + j >= m_gameFrame->m_height - 1) 
+				if (m_y + j >= m_gameFrame->m_height - 1)
 				{
 					return true;
 				}
-				else if (m_gameFrame && 
-					m_x + i >= 0 && 
-					m_x + i < m_gameFrame->m_width && 
+				else if (m_gameFrame &&
+					m_x + i >= 0 &&
+					m_x + i < m_gameFrame->m_width &&
 					m_gameFrame->m_type == 1)
 				{
-					GameFrame * pGameFrame = (GameFrame*)m_gameFrame;
-					int index = (m_y + j) * pGameFrame->m_col +  (m_x + i);
-					int index1 = (m_y + j + 1) * pGameFrame->m_col +  (m_x + i);
-					if (pGameFrame->m_data[index] == 1 || pGameFrame->m_data[index1] == 1)	
+					GameFrame* pGameFrame = (GameFrame*)m_gameFrame;
+					int index = (m_y + j) * pGameFrame->m_col + (m_x + i);
+					int index1 = (m_y + j + 1) * pGameFrame->m_col + (m_x + i);
+					if (pGameFrame->m_data[index] == 1 || pGameFrame->m_data[index1] == 1)
 						return true;
 				}
 
@@ -457,12 +459,12 @@ bool Block::DownHit()
 			}
 		}
 	}
-	
+
 	return false;
 
 }
 
-Block& Block::operator= (const Block & rhs)
+Block& Block::operator= (const Block& rhs)
 {
 	m_x = rhs.m_x;
 	m_y = rhs.m_y;
@@ -477,26 +479,26 @@ Block& Block::operator= (const Block & rhs)
 
 void Block::Paste()
 {
-        char (*data)[4] = m_data[m_status];
+	char(*data)[4] = m_data[m_status];
 
-        for (int i = 0; i < m_d; ++i)
-        {
-                for (int j = 0; j < m_d; ++j)
-                {
-                        if (data[i][j] == 1)
-                        {
-                                if (m_gameFrame &&
-                                        m_y + i >= 0 &&
-                                        m_y + i < m_gameFrame->m_height &&
-                                        m_gameFrame->m_type == 1)
-                                {
-                                        GameFrame * pGameFrame = (GameFrame*)m_gameFrame;
+	for (int i = 0; i < m_d; ++i)
+	{
+		for (int j = 0; j < m_d; ++j)
+		{
+			if (data[i][j] == 1)
+			{
+				if (m_gameFrame &&
+					m_y + i >= 0 &&
+					m_y + i < m_gameFrame->m_height &&
+					m_gameFrame->m_type == 1)
+				{
+					GameFrame* pGameFrame = (GameFrame*)m_gameFrame;
 					int index = (m_y + i) * pGameFrame->m_col + (m_x + j);
-                                        pGameFrame->m_data[index] = 1;
-                                }
-                        }
-                }
-        }
+					pGameFrame->m_data[index] = 1;
+				}
+			}
+		}
+	}
 
 }
 
@@ -505,13 +507,13 @@ class TetrisGame
 public:
 	TetrisGame();
 	~TetrisGame() {}
-	
+
 	void Init();
-	
+
 	void Run();
-	
+
 private:
-	
+
 	void Draw();
 
 	bool GameOver();
@@ -530,12 +532,12 @@ private:
 TetrisGame::TetrisGame()
 {
 	m_infoFrame = boost::make_shared<Frame>(44, 10, 8, 20);
-        m_gameFrame = boost::make_shared<GameFrame>(10, 10, 15, 20);
+	m_gameFrame = boost::make_shared<GameFrame>(10, 10, 15, 20);
 
-        for (int i = 0; i < 5; ++i)
-        {
-                m_vecBlock.push_back(boost::make_shared<Block>(7, 0, i, m_gameFrame.get()));
-        }
+	for (int i = 0; i < 5; ++i)
+	{
+		m_vecBlock.push_back(boost::make_shared<Block>(7, 0, i, m_gameFrame.get()));
+	}
 }
 
 
@@ -551,29 +553,29 @@ void TetrisGame::Init()
 
 void TetrisGame::Run()
 {
-	int buf[2] = {0};
+	int buf[2] = { 0 };
 
 	unsigned long long lastOptTime = UTime();
 
-        /*
-	int flags;
-	if ((flags = fcntl(0, F_GETFL)) == -1) return ;
- 		
-	flags |= O_NONBLOCK;		
-	if (fcntl(0, F_SETFL, flags) == -1) return ; 
-	*/
+	/*
+int flags;
+if ((flags = fcntl(0, F_GETFL)) == -1) return ;
+
+flags |= O_NONBLOCK;
+if (fcntl(0, F_SETFL, flags) == -1) return ;
+*/
 
 	fd_set rdset, tmpset;
-	
+
 	FD_ZERO(&rdset);
 	FD_SET(0, &rdset);
 
 
-	struct timeval timeout = {0, 500};
+	struct timeval timeout = { 0, 500 };
 
 	Draw();
 
-	while(1)
+	while (1)
 	{
 		if (GameOver())
 		{
@@ -581,7 +583,7 @@ void TetrisGame::Run()
 
 			/*
 			flags &= ~O_NONBLOCK;
-        		if (fcntl(0, F_SETFL, flags) == -1) return ;
+				if (fcntl(0, F_SETFL, flags) == -1) return ;
 			*/
 
 			read(0, buf, 1);
@@ -589,15 +591,15 @@ void TetrisGame::Run()
 				break;
 			else if (buf[0] == 'c')
 				Init();
-			
-	
+
+
 			/*
 			flags |= O_NONBLOCK;
-        		if (fcntl(0, F_SETFL, flags) == -1) return ;
+				if (fcntl(0, F_SETFL, flags) == -1) return ;
 			*/
-				
+
 		}
-		
+
 		if (UTime() - lastOptTime > 1000 * 500 * 2)
 		{
 			if (m_currBlock->DownHit())
@@ -609,18 +611,18 @@ void TetrisGame::Run()
 			}
 			else
 			{
-				m_currBlock->Down();	
+				m_currBlock->Down();
 			}
 
 			lastOptTime = UTime();
 			Draw();
 		}
 		else
-		{	
+		{
 			tmpset = rdset;
 
 			timeout.tv_sec = 0;
-           		timeout.tv_usec = 400;
+			timeout.tv_usec = 400;
 
 			int n = select(1, &tmpset, NULL, NULL, &timeout);
 
@@ -630,24 +632,26 @@ void TetrisGame::Run()
 				int len = read(0, buf, 1);
 
 				if (len == 1)
-				{ 
+				{
 
-					switch(buf[0])
+					switch (buf[0])
 					{
-						case 'w':
-							m_currBlock->Rotate();
-							break;
-						case 's':
-							m_currBlock->Down();
-							break;
-						case 'a':
-							m_currBlock->Left();
-							break;
-						case 'd':
-							m_currBlock->Right();
-							break;
-						default:
-							printf("\a");
+					case 'w':
+					{
+						m_currBlock->Rotate();
+					}
+					break;
+					case 's':
+						m_currBlock->DownHit() ? Sound_Bi() : m_currBlock->Down();
+						break;
+					case 'a':
+						m_currBlock->LeftHit() ? Sound_Bi() : m_currBlock->Left();
+						break;
+					case 'd':
+						m_currBlock->RightHit() ? Sound_Bi() : m_currBlock->Right();
+						break;
+					default:
+						Sound_Bi();
 					}
 
 					Draw();
@@ -656,7 +660,6 @@ void TetrisGame::Run()
 		}
 
 		usleep(10);
-
 	}
 }
 
@@ -690,7 +693,7 @@ void TetrisGame::Draw()
 	next.SetX(0);
 	next.SetY(3);
 	next.Draw();
-	
+
 	fflush(stdout);
 }
 
@@ -699,36 +702,32 @@ class GlobalOpt
 public:
 	GlobalOpt()
 	{
-	        srand(time(NULL));
+		srand(time(NULL));
 
+		tcgetattr(0, &told);
+		tnew = told;
 
-        	tcgetattr(0, &told);
-        	tnew = told;
+		tnew.c_lflag &= ~(ICANON | ECHO | ECHOE | IEXTEN);
+		tnew.c_oflag &= ~ONLCR;
+		tnew.c_cc[VMIN] = 1;
+		tnew.c_cc[VTIME] = 0;
 
-        	tnew.c_lflag &= ~(ICANON | ECHO | ECHOE | IEXTEN);
-        	tnew.c_oflag &= ~ONLCR;
-        	tnew.c_cc[VMIN] = 1;
-        	tnew.c_cc[VTIME] = 0;
-
-        	tcsetattr(0, TCSANOW, &tnew);
+		tcsetattr(0, TCSANOW, &tnew);
 
 		printf("\e[?25l");
 	}
 
 	~GlobalOpt()
 	{
-		
 		printf("\e[?25h");
 		tcsetattr(0, TCSANOW, &told);
 	}
 public:
-        struct termios told;
-        struct termios tnew;
+	struct termios told;
+	struct termios tnew;
 };
 
 GlobalOpt globalOpt;
-
-
 
 int main()
 {
