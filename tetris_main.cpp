@@ -2,7 +2,6 @@
 #include <string.h>
 #include <map>
 #include <unistd.h>
-#include <pthread.h>
 
 #include <cassert>
 #include <termios.h>
@@ -13,9 +12,8 @@
 #include <time.h>
 #include <vector>
 #include <fcntl.h>
+#include <memory>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
 #include <sys/time.h>
 
 #include <sys/select.h>
@@ -135,22 +133,16 @@ public:
 
 		m_data = new char[m_row * m_col];
 		memset((char*)m_data, 0, m_row * m_col);
-
-		/*
-		for (int i = 0; i < m_row; ++i)
-			{
-					for (int j = 0; j < m_col; ++j)
-					{
-							m_data[i * m_row + j] = 0;
-
-					}
-			}
-		*/
 	}
 
 	~GameFrame()
 	{
 		delete[] m_data;
+	}
+
+	void Reset() 
+	{
+		memset((char*)m_data, 0, m_row * m_col);
 	}
 
 	virtual void Draw();
@@ -250,7 +242,7 @@ public:
 
 	void Init();
 
-	void Random() { m_status = rand() % 4; }
+	void Random() { m_y = 0; m_status = rand() % 4; }
 
 	bool LeftHit();
 
@@ -509,6 +501,7 @@ public:
 	~TetrisGame() {}
 
 	void Init();
+	void Reset();
 
 	void Run();
 
@@ -522,33 +515,38 @@ private:
 
 private:
 	int m_score;
-	boost::shared_ptr<Frame> m_infoFrame;
-	boost::shared_ptr<GameFrame> m_gameFrame;
-	vector<boost::shared_ptr<Block> > m_vecBlock;
-	boost::shared_ptr<Block> m_currBlock;
-	boost::shared_ptr<Block> m_nextBlock;
+	std::shared_ptr<Frame> m_infoFrame;
+	std::shared_ptr<GameFrame> m_gameFrame;
+	vector<std::shared_ptr<Block> > m_vecBlock;
+	std::shared_ptr<Block> m_currBlock;
+	std::shared_ptr<Block> m_nextBlock;
 };
 
 TetrisGame::TetrisGame()
 {
-	m_infoFrame = boost::make_shared<Frame>(44, 10, 8, 20);
-	m_gameFrame = boost::make_shared<GameFrame>(10, 10, 15, 20);
-
+	m_infoFrame = std::make_shared<Frame>(44, 10, 8, 20);
+	m_gameFrame = std::make_shared<GameFrame>(10, 10, 15, 20);
 	for (int i = 0; i < 5; ++i)
 	{
-		m_vecBlock.push_back(boost::make_shared<Block>(7, 0, i, m_gameFrame.get()));
+		m_vecBlock.push_back(std::make_shared<Block>(7, 0, i, m_gameFrame.get()));
 	}
 }
-
 
 void TetrisGame::Init()
 {
 	m_score = 0;
+
 	m_currBlock = m_vecBlock[rand() % m_vecBlock.size()];
 	m_nextBlock = m_vecBlock[rand() % m_vecBlock.size()];
 
 	m_currBlock->Random();
 	m_nextBlock->Random();
+}
+
+void TetrisGame::Reset() 
+{
+	Init();
+	m_gameFrame->Reset();
 }
 
 void TetrisGame::Run()
@@ -558,12 +556,11 @@ void TetrisGame::Run()
 	unsigned long long lastOptTime = UTime();
 
 	/*
-int flags;
-if ((flags = fcntl(0, F_GETFL)) == -1) return ;
-
-flags |= O_NONBLOCK;
-if (fcntl(0, F_SETFL, flags) == -1) return ;
-*/
+	int flags;
+	if ((flags = fcntl(0, F_GETFL)) == -1) return ;
+	flags |= O_NONBLOCK;
+	if (fcntl(0, F_SETFL, flags) == -1) return ;
+	*/
 
 	fd_set rdset, tmpset;
 
@@ -590,9 +587,7 @@ if (fcntl(0, F_SETFL, flags) == -1) return ;
 			if (buf[0] == 'q')
 				break;
 			else if (buf[0] == 'c')
-				Init();
-
-
+				Reset();
 			/*
 			flags |= O_NONBLOCK;
 				if (fcntl(0, F_SETFL, flags) == -1) return ;
@@ -633,14 +628,11 @@ if (fcntl(0, F_SETFL, flags) == -1) return ;
 
 				if (len == 1)
 				{
-
 					switch (buf[0])
 					{
 					case 'w':
-					{
 						m_currBlock->Rotate();
-					}
-					break;
+						break;
 					case 's':
 						m_currBlock->DownHit() ? Sound_Bi() : m_currBlock->Down();
 						break;
@@ -731,99 +723,9 @@ GlobalOpt globalOpt;
 
 int main()
 {
-	/*
-	srand(time(NULL));
-
-	struct termios told;
-	struct termios tnew;
-
-	tcgetattr(0, &told);
-	tnew = told;
-
-	tnew.c_lflag &= ~(ICANON | ECHO | ECHOE | IEXTEN);
-	tnew.c_oflag &= ~ONLCR;
-	tnew.c_cc[VMIN] = 1;
-	tnew.c_cc[VTIME] = 0;
-
-
-	tcsetattr(0, TCSANOW, &tnew);
-
-	printf("\e[?25l\n");
-	*/
-
 	TetrisGame game;
-
 	game.Init();
-
 	game.Run();
-
-	/*
-
-	printf("\e[0;0H\e[2J");
-
-	//test_rotate();
-	//printf("\e[%d;%dH", 20, 10);
-
-	//DrawRectangle(10, 10, 40, 20);
-
-	//Move(30, 20);
-
-
-	GameFrame f(10, 10, 15, 20);
-	Block b(2, 3, 0, &f);
-
-	b.Random();
-
-	f.Draw();
-	b.Draw();
-
-	fflush(stdout);
-
-	int buf[2] = {0};
-	while (buf[0] != 'q')
-	{
-		read(0, buf, 1);
-		switch(buf[0])
-		{
-			case 'w':
-				b.Rotate();
-				break;
-			case 's':
-				b.Down();
-				break;
-			case 'a':
-				b.Left();
-				break;
-			case 'd':
-				b.Right();
-				break;
-			default:
-				;
-				//printf("%c", buf[0]);
-		}
-		Clear();
-
-		f.Draw();
-		b.Draw();
-
-		fflush(stdout);
-	}
-
-
-	for(int i = 0; i < 10 ; i++)
-	{
-		printf("\e[35m%-3d%c\e[0m\e[4D\e[?25l", (i + 1) * 100 /10, '%');
-		fflush(stdout);
-		sleep(1);
-	}
-
-	*/
-
-	//printf("\e[?25h\n");
-
-	//Move(0, 31);
-
-	//tcsetattr(0, TCSANOW, &told);
 
 	return 0;
 }

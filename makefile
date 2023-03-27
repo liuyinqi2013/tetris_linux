@@ -1,7 +1,7 @@
 RM=rm -rf
 CP=cp -rf
 CC=g++
-CFLAGS= -c -Wall -g
+CFLAGS= -c -Wall -g -std=c++11
 
 TARGET=tetris
 BIN_PATH=../bin
@@ -11,7 +11,7 @@ BOOST_HOME=/home/bulande/boost
 SUBDIRS=$(shell find ./* -type d)
 INC_SUBDIRS=$(shell find ./* -type d | awk -F' ' '{print "-I"$$0}')
 INC_PATH=$(INC_SUBDIRS) -I$(BOOST_HOME)/include/
-LIB_PATH=$(BOOST_HOME)/lib/libboost_thread.a $(BOOST_HOME)/lib/libboost_system.a
+LIB_PATH=
 LIB= -lpthread -ldl -lz
 
 C_SRC=$(shell find . -type f | grep "\.c$$" | grep -v grep)
