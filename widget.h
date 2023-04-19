@@ -155,6 +155,11 @@ public:
 		m_arr.assign(m_row * m_row, string(" "));
 	}
 
+	void ClearRow(int row) 
+	{
+		for (int j = 0; j < m_col; ++j) SetCellVal(row, j, " ");
+	}
+
 	virtual int W() { return m_col * m_cellWidth; }
 	virtual int H() { return m_row * m_cellHeight; }
 

@@ -10,15 +10,13 @@ BOOST_HOME=/home/bulande/boost
 
 SUBDIRS=$(shell find ./* -type d)
 INC_SUBDIRS=$(shell find ./* -type d | awk -F' ' '{print "-I"$$0}')
-INC_PATH=$(INC_SUBDIRS) -I$(BOOST_HOME)/include/
+INC_PATH=$(INC_SUBDIRS)
 LIB_PATH=
 LIB= -lpthread -ldl -lz
 
 C_SRC=$(shell find . -type f | grep "\.c$$" | grep -v grep)
-#C_SRC=$(notdir $(C_SRC_NAME)) 
 C_OBJ=$(patsubst %.c, %.o, $(C_SRC))
 CPP_SRC=$(shell find . -type f | grep "\.cpp$$" | grep -v grep)
-#CPP_SRC=$(notdir $(CPP_SRC_NAME)) 
 CPP_OBJ=$(patsubst %.cpp, %.o, $(CPP_SRC))
 OBJS=$(C_OBJ) $(CPP_OBJ)
 

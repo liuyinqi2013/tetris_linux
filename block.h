@@ -125,6 +125,7 @@ public:
 	void Up() { --m_row; }
 
 	void Down() { ++m_row; }
+	void Down(int d) { m_row += d; }
 
 	void Left() { --m_col; }
 
@@ -205,28 +206,37 @@ public:
 		return count;
 	}
 
-	void RowTwinkling(int row) 
+	void RowTwinkling(int row, int delay = 400000) 
 	{
-		RowTwinklings(row, row + 1);
+		RowTwinklings(row, row + 1, delay);
 	}
 
-	void RowTwinklings(int begin, int end) 
+	void RowTwinklings(int begin, int end, int delay = 400000) 
 	{
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 2; i++)
 		{
 			HideRows(begin, end);
-			usleep(400000);
+			usleep(delay);
 			DrawRows(begin, end);
-			usleep(400000);
+			usleep(delay);
+		}
+	}
+
+	void CellTwinkling(int row, int col, int delay = 200000)
+	{
+		for (int i = 0; i < 2; i++)
+		{
+			HideCell(row, col);
+			usleep(delay);
+			DrawCell(row, col);
+			usleep(delay);
 		}
 	}
 
 	void EraseRows(int begin, int end) 
 	{
 		int n = end - begin;
-		if (n == 0) {
-			return;
-		}
+		if (n == 0) return;
 
 		for (int row = begin - 1; row >= 0; row--)
 		{
@@ -269,7 +279,8 @@ public:
 			for (int row = 0; row < b->m_d; row++)
 			{
 				if (!b->Value(row, col)) continue;
-				else if ((col + b->m_col) == 0 || 
+
+				if ((col + b->m_col) == 0 || 
 					Value(row + b->m_row, col + b->m_col) ||
 					Value(row + b->m_row, col + b->m_col - 1)) {
 						return true;
@@ -287,7 +298,8 @@ public:
 			for (int row = 0; row < b->m_d; row++)
 			{
 				if (!b->Value(row, col)) continue;
-				else if ((col + b->m_col) == m_col - 1 || 
+				
+				if ((col + b->m_col) == m_col - 1 || 
 					Value(row + b->m_row, col + b->m_col) ||
 					Value(row + b->m_row, col + b->m_col + 1)) {
 						return true;
@@ -305,7 +317,8 @@ public:
 			for (int col = 0; col < b->m_d; col++)
 			{
 				if (!b->Value(row, col)) continue;
-				else if ((row + b->m_row) == m_row - 1|| 
+
+				if ((row + b->m_row) == m_row - 1|| 
 					Value(row + b->m_row, col + b->m_col) ||
 					Value(row + b->m_row + 1, col + b->m_col)) {
 						return true;
@@ -313,6 +326,28 @@ public:
 			}
 		}
 		return false;
+	}
+
+	int DownHitDuration(const CBlock* b) 
+	{
+		int d = m_row;
+		for (int col = 0; col < b->m_d; col++)
+		{
+			for (int row = b->m_d - 1; row >= 0; row--)
+			{
+				if (!b->Value(row, col)) continue;
+				int tmp = downHitDuration(row + b->m_row, col + b->m_col);
+				if (tmp < d) d = tmp;
+			}
+		}
+		return d;
+	}
+
+	int downHitDuration(int row, int col)
+	{
+		int i = row;
+		while(!Value(i, col) && !Value(i + 1, col)) ++i;
+		return i - row;
 	}
 
 	int doCheckAndEraseRows() 
@@ -346,10 +381,9 @@ public:
 	{
 		SetFullALL();
 		Draw();
-		usleep(1000*1000);
+		usleep(10000000);
 		Reset();
 		Draw();
-		usleep(1000*1000);
 	}
 
 private:

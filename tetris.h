@@ -58,6 +58,7 @@ private:
 	void BlockRight();
 	void BlockDown();
 	void BlockRotate();
+	void BlockFastDown();
 
 private:
 	int m_score;
@@ -145,6 +146,7 @@ void Tetris::Run()
 	{
 		if (GameOver())
 		{
+			ShowGameOverInfo();
 			int n = read(0, buf, 128);
 			if (buf[n - 1] == 'q')
 				break;
@@ -178,6 +180,9 @@ void Tetris::Run()
 				case 'd':
 					m_gameGird->RightHit(m_currBlock) ? Sound_Bi() : BlockRight();
 					break;
+				case ' ':
+					BlockFastDown();
+					break;
 				default:
 					Sound_Bi();
 				}
@@ -193,23 +198,19 @@ void Tetris::Run()
 		{
 			BlockDown();
 		}
+
 		last = now;
 	}
 }
 
 bool Tetris::GameOver()
 {
-	for (int i = 0; i < m_gameGird->Col(); ++i)
-	{
-		if (m_gameGird->Value(0, i) == 1)
-			return true;
-	}
-	return false;
+	return m_gameGird->RowCount(0) > 0;
 }
 
 int Tetris::ToLevel(int score)
 {
-	return 1;
+	return 1 + score / 400;
 }
 
 unsigned int Tetris::WaitDuration()
@@ -220,13 +221,22 @@ unsigned int Tetris::WaitDuration()
 
 void Tetris::ShowGameOverInfo()
 {
-}
+	m_gameGird->ClearRow(10);
+	m_gameGird->ClearRow(11);
+	m_gameGird->ClearRow(12);
 
+	m_gameGird->SetCellVal(10, 6, "Game over.");
+	m_gameGird->SetCellVal(11, 6, "Press q quit game.");
+	m_gameGird->SetCellVal(12, 6, "Press c continue.");
+
+	m_gameGird->DrawRow(10);
+	m_gameGird->DrawRow(11);
+	m_gameGird->DrawRow(12);
+}
 
 void Tetris::Next() {
 	usleep(50000);
 	m_gameGird->Copy(m_currBlock);
-
 	while(1) 
 	{
 		int cnt = m_gameGird->doCheckAndEraseRows();
@@ -309,6 +319,17 @@ void Tetris::BlockRotate()
 {
 	m_currBlock->Hide();
 	m_currBlock->Rotate();
+	m_currBlock->Draw();
+}
+
+void Tetris::BlockFastDown()
+{
+	int d = m_gameGird->DownHitDuration(m_currBlock);
+	if (!d) 
+		return;
+
+	m_currBlock->Hide();
+	m_currBlock->Down(d);
 	m_currBlock->Draw();
 }
 
