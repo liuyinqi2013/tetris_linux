@@ -64,7 +64,6 @@ public:
 			{
 				printf(" ");
 			}
-
 			printf("\n");
 		}
 	}

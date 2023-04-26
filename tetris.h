@@ -22,6 +22,7 @@
 #include <sys/select.h>
 #include <sys/types.h>
 
+#include "config.h"
 #include "block.h"
 
 unsigned long int UTime()
@@ -225,9 +226,9 @@ void Tetris::ShowGameOverInfo()
 	m_gameGird->ClearRow(11);
 	m_gameGird->ClearRow(12);
 
-	m_gameGird->SetCellVal(10, 6, "Game over.");
-	m_gameGird->SetCellVal(11, 6, "Press q quit game.");
-	m_gameGird->SetCellVal(12, 6, "Press c continue.");
+	m_gameGird->SetCellVal(10, 6, "Game Over.");
+	m_gameGird->SetCellVal(11, 6, "Press Q Quit Game.");
+	m_gameGird->SetCellVal(12, 6, "Press C Continue.");
 
 	m_gameGird->DrawRow(10);
 	m_gameGird->DrawRow(11);

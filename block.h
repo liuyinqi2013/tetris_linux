@@ -5,40 +5,7 @@
 #include <string.h>
 #include "widget.h"
 
-char b0[] = 
-{
-	1, 1,
-	1, 1
-};
-
-char b1[] = 
-{
-	0, 0, 0,
-	0, 1, 0,
-	1, 1, 1
-};
-
-char b2[] = 
-{
-	0, 1, 1,
-	0, 1, 0,
-	0, 1, 0
-};
-
-char b3[] = 
-{
-	0, 1, 1,
-	1, 1, 0,
-	0, 0, 0
-};
-
-char b4[] = 
-{
-	0, 1, 0, 0,
-	0, 1, 0, 0,
-	0, 1, 0, 0,
-	0, 1, 0, 0,
-};
+static const char* defaultBlockFlag = "■";
 
 class GameGird ;
 
@@ -51,7 +18,7 @@ public:
 		m_col = col;
 		m_row = row;
 		m_d = d;
-
+		m_flag = defaultBlockFlag;
 		m_data[0] = (char*)malloc(d*d);
 		memcpy(m_data[0], data, d*d);
 
@@ -82,7 +49,7 @@ public:
 			for (int col = 0; col < m_d; ++col)
 			{
 				if (Value(row, col) == 1)
-					printf("\e[%d;%dH■", Y() + row + m_row, X() + 2 * (col + m_col));
+					printf("\e[%d;%dH%s", Y() + row + m_row, X() + 2 * (col + m_col), m_flag.c_str());
 			}
 		}
 		fflush(stdout);
@@ -141,6 +108,7 @@ private:
 	int m_d;
 	int m_status;
 	char* m_data[4];
+	string m_flag;
 };
 
 class GameGird : public Gird
@@ -149,6 +117,7 @@ public:
 	GameGird(Widget *parent, int x, int y, int row, int col) :
 		Gird(parent, x, y, row, col)
 	{
+		m_flag = defaultBlockFlag;
 		SetCellWidth(2);
 		m_data = new char[row * col];
 		memset(m_data, 0, row * col);
@@ -180,7 +149,7 @@ public:
 	{
 		m_data[row * m_col + col] = v;
 		if (v) {
-			SetCellVal(row, col, "■");
+			SetCellVal(row, col, SkyeBlue(m_flag));
 		} else {
 			SetCellVal(row, col, " ");
 		}
@@ -346,7 +315,7 @@ public:
 	int downHitDuration(int row, int col)
 	{
 		int i = row;
-		while(!Value(i, col) && !Value(i + 1, col)) ++i;
+		while(i + 1 < m_row && !Value(i, col)  && !Value(i + 1, col) ) ++i;
 		return i - row;
 	}
 
@@ -381,13 +350,15 @@ public:
 	{
 		SetFullALL();
 		Draw();
-		usleep(10000000);
+		usleep(2000000);
 		Reset();
 		Draw();
+		usleep(2000000);
 	}
 
 private:
-
-	char* m_data;
+	char*  m_data;
+	string m_flag;
 };
+
 #endif
