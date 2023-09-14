@@ -101,7 +101,8 @@ void Tetris::Init()
 	m_vecBlock.push_back(new CBlock(NULL, 3, b1));
 	m_vecBlock.push_back(new CBlock(NULL, 3, b2));
 	m_vecBlock.push_back(new CBlock(NULL, 3, b3));
-	m_vecBlock.push_back(new CBlock(NULL, 4, b4));
+	m_vecBlock.push_back(new CBlock(NULL, 3, b4));
+	m_vecBlock.push_back(new CBlock(NULL, 4, b5));
 
 	Reset();
 }
@@ -162,10 +163,10 @@ void Tetris::Run()
 		now = UTime();
 
 		int n = select(1, &tmpset, NULL, NULL, &timeout);
-		if (n > 0 && now - last <=  WaitDuration() * 2000)
+		if (n > 0)
 		{
 			int len = read(0, buf, 128);
-			if (len > 0)
+			if (len > 0 && now - last <=  WaitDuration() * 2000)
 			{
 				switch (buf[len-1])
 				{

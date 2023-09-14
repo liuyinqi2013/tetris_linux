@@ -5,7 +5,8 @@
 #include <string.h>
 #include "widget.h"
 
-static const char* defaultBlockFlag = "■";
+// static const char* defaultBlockFlag = "■";
+static const char* defaultBlockFlag = "🟦";
 
 class GameGird ;
 
@@ -93,9 +94,7 @@ public:
 
 	void Down() { ++m_row; }
 	void Down(int d) { m_row += d; }
-
 	void Left() { --m_col; }
-
 	void Right() { ++m_col; }
 
 	void SetOrigin(int col, int row) { m_col = col, m_row= row;}
@@ -350,10 +349,10 @@ public:
 	{
 		SetFullALL();
 		Draw();
-		usleep(2000000);
+		usleep(1000000);
 		Reset();
 		Draw();
-		usleep(2000000);
+		usleep(1000000);
 	}
 
 private:
